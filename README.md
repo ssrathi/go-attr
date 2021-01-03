@@ -22,7 +22,6 @@ go install
 ## Usage
 See full documentation at https://pkg.go.dev/github.com/ssrathi/go-attr.
 
-### Examples
 ```go
   import attr "github.com/ssrathi/go-attr"
 
