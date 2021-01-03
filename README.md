@@ -49,6 +49,15 @@ See full documentation at https://godoc.org/github.com/ssrathi/go-attr
     // Handle error.
   }
   fmt.Printf("Username: %s\n", user.Username)
+
+  // Get the values of all the fields.
+  fieldValues, err := attr.FieldValues(&user)
+  if err != nil {
+    // Handle error.
+  }
+  for name, val := range fieldValues {
+    fmt.Printf("%s: %v\n", name, val)
+  }
 ```
 
 ## Contributing
