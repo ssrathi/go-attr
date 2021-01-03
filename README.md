@@ -46,6 +46,7 @@ See full documentation at https://pkg.go.dev/github.com/ssrathi/go-attr.
 
 **Set a new value to an existing field of a struct object.**
 ```go
+  // Struct must be passed by pointer to set its field.
   err = attr.SetField(&user, "Username", "new-username")
   fmt.Printf("New username: %s\n", user.Username)
 ```
@@ -69,7 +70,6 @@ See full documentation at https://pkg.go.dev/github.com/ssrathi/go-attr.
 
 **Get the value of a specific tag of a specific field in a struct.**
 ```go
-  // GetFieldTag(): 
   tagValue, err := attr.GetFieldTag(&user, "Age", "meta")
   fmt.Printf("'meta' tag value of 'Age': %s\n", tagValue)
 ```
