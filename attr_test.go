@@ -8,29 +8,26 @@ import (
 )
 
 type User struct {
-	Username string
+	Username string `json:"username" db:"uname"`
+	Age      int    `json:"age" meta:"important"`
 	password string
-	Age      int
 }
 
-var user User = User{"srathi", "my_secret_123", 30}
+var user User = User{"srathi", 30, "my_secret_123"}
 
 func TestGetField(t *testing.T) {
 	want := user.Username
 	got, err := GetField(user, "Username")
 	require.Nil(t, err)
-	require.Equal(t, got, want, "Username mismatch")
+	require.Equal(t, want, got, "Username mismatch")
 
 	wantErr := ErrUnexportedField
 	_, gotErr := GetField(user, "password")
-	require.Equal(t, gotErr, wantErr, "Able to get an unexported field value")
+	require.Equal(t, wantErr, gotErr, "Able to get an unexported field value")
 }
 
 func ExampleGetField() {
-	testUser := User{
-		Username: "srathi",
-		Age:      30,
-	}
+	testUser := User{Username: "srathi", password: "secret", Age: 30}
 
 	value, err := GetField(testUser, "Age")
 	if err != nil {
@@ -44,19 +41,16 @@ func TestHasField(t *testing.T) {
 	want := true
 	got, err := HasField(&user, "Age")
 	require.Nil(t, err)
-	require.Equal(t, got, want, "Age not found")
+	require.Equal(t, want, got, "Age not found")
 
 	want = false
 	got, err = HasField(&user, "NonExistant")
 	require.Nil(t, err)
-	require.Equal(t, got, want, "NonExistant field found")
+	require.Equal(t, want, got, "NonExistant field found")
 }
 
 func ExampleHasField() {
-	testUser := User{
-		Username: "srathi",
-		Age:      30,
-	}
+	testUser := User{Username: "srathi", password: "secret", Age: 30}
 
 	ok, err := HasField(&testUser, "Age")
 	if err != nil {
@@ -78,20 +72,20 @@ func ExampleHasField() {
 func TestSetField(t *testing.T) {
 	wantErr := ErrNotPtr
 	gotErr := SetField(user, "Username", "new-srathi")
-	require.Equal(t, gotErr, wantErr, "Able to set fields on a struct by value")
+	require.Equal(t, wantErr, gotErr, "Able to set fields on a struct by value")
 
 	wantErr = ErrUnexportedField
 	gotErr = SetField(&user, "password", "new-password")
-	require.Equal(t, gotErr, wantErr, "Able to set a private field of a struct")
+	require.Equal(t, wantErr, gotErr, "Able to set a private field of a struct")
 
 	wantErr = ErrMismatchValue
 	gotErr = SetField(&user, "Age", 40.5)
-	require.Equal(t, gotErr, wantErr, "Able to set float value to an int field")
+	require.Equal(t, wantErr, gotErr, "Able to set float value to an int field")
 
 	oldVal := user.Age
 	err := SetField(&user, "Age", 40)
 	require.Nil(t, err)
-	require.Equal(t, user.Age, 40, "New value not set in a struct")
+	require.Equal(t, 40, user.Age, "New value not set in a struct")
 
 	err = SetField(&user, "Age", oldVal)
 	require.Nil(t, err)
@@ -99,10 +93,7 @@ func TestSetField(t *testing.T) {
 }
 
 func ExampleSetField() {
-	testUser := User{
-		Username: "srathi",
-		password: "secret",
-	}
+	testUser := User{Username: "srathi", password: "secret", Age: 30}
 
 	err := SetField(&testUser, "password", "new-secret")
 	fmt.Printf("Error while setting a private field: %v\n", err)
@@ -131,15 +122,11 @@ func TestFieldNames(t *testing.T) {
 	want := []string{"Username", "Age"}
 	got, err := FieldNames(&user)
 	require.Nil(t, err)
-	require.Equal(t, got, want, "Struct field list is not correct")
+	require.Equal(t, want, got, "Struct field list is not correct")
 }
 
 func ExampleFieldNames() {
-	testUser := User{
-		Username: "srathi",
-		password: "secret",
-		Age:      30,
-	}
+	testUser := User{Username: "srathi", password: "secret", Age: 30}
 
 	fields, err := FieldNames(&testUser)
 	if err != nil {
@@ -154,15 +141,11 @@ func TestFieldValues(t *testing.T) {
 	want := map[string]interface{}{"Username": "srathi", "Age": 30}
 	got, err := FieldValues(&user)
 	require.Nil(t, err)
-	require.Equal(t, got, want, "Struct field values are not correct")
+	require.Equal(t, want, got, "Struct field values are not correct")
 }
 
 func ExampleFieldValues() {
-	testUser := User{
-		Username: "srathi",
-		password: "secret",
-		Age:      30,
-	}
+	testUser := User{Username: "srathi", password: "secret", Age: 30}
 
 	values, err := FieldValues(&testUser)
 	if err != nil {
@@ -171,4 +154,76 @@ func ExampleFieldValues() {
 
 	fmt.Printf("Values: %v\n", values)
 	// Output: Values: map[Age:30 Username:srathi]
+}
+
+func TestGetFieldTag(t *testing.T) {
+	want := "important"
+	got, err := GetFieldTag(&user, "Age", "meta")
+	require.Nil(t, err)
+	require.Equal(t, want, got, "meta tag value for 'Age' is not correct")
+
+	want = "username"
+	got, err = GetFieldTag(&user, "Username", "json")
+	require.Nil(t, err)
+	require.Equal(t, want, got, "json tag value for 'Username' is not correct")
+
+	want = ""
+	got, err = GetFieldTag(&user, "Age", "db")
+	require.Nil(t, err)
+	require.Equal(t, want, got, "json tag value for 'Age' is not correct")
+
+	wantErr := ErrUnexportedField
+	_, gotErr := GetFieldTag(&user, "password", "json")
+	require.Equal(t, wantErr, gotErr, "Able to get tag value of a private field")
+}
+
+func ExampleGetFieldTag() {
+	// type User struct {
+	// 	Username string `json:"username" db:"uname"`
+	// 	password string `json:"password" db:"pw"`
+	// 	Age      int    `json:"age" meta:"important"`
+	// }
+	testUser := User{Username: "srathi", password: "secret", Age: 30}
+	tag, err := GetFieldTag(&testUser, "Username", "db")
+	if err != nil {
+		// Handle error.
+	}
+	fmt.Printf("db tag value: %s\n", tag)
+	// Output: db tag value: uname
+}
+
+func TestTagValues(t *testing.T) {
+	want := map[string]string{"Username": "username", "Age": "age"}
+	got, err := TagValues(&user, "json")
+	require.Nil(t, err)
+	require.Equal(t, want, got, "json tag values are not correct")
+
+	want = map[string]string{"Username": "uname", "Age": ""}
+	got, err = TagValues(&user, "db")
+	require.Nil(t, err)
+	require.Equal(t, want, got, "db tag values are not correct")
+}
+
+func ExampleTagValues() {
+	// type User struct {
+	// 	Username string `json:"username" db:"uname"`
+	// 	password string `json:"password" db:"pw"`
+	// 	Age      int    `json:"age"  meta:"important"`
+	// }
+	testUser := User{Username: "srathi", password: "secret", Age: 30}
+
+	values, err := TagValues(&testUser, "json")
+	if err != nil {
+		// Handle error.
+	}
+	fmt.Printf("json tag values: %v\n", values)
+
+	values, err = TagValues(&testUser, "db")
+	if err != nil {
+		// Handle error.
+	}
+	fmt.Printf("db tag values: %v\n", values)
+	// Output:
+	// json tag values: map[Age:age Username:username]
+	// db tag values: map[Age: Username:uname]
 }

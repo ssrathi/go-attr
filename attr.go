@@ -160,6 +160,49 @@ func FieldValues(obj interface{}) (map[string]interface{}, error) {
 	return valueMap, nil
 }
 
+// GetFieldTag returns the value of a specified tag on a specified struct field.
+// Specified field must be an exportable (public) filed of the struct.
+func GetFieldTag(obj interface{}, fieldName, tagKey string) (string, error) {
+	objValue, err := getReflectValue(obj)
+	if err != nil {
+		return "", err
+	}
+
+	structType := objValue.Type()
+	field, found := structType.FieldByName(fieldName)
+	if !found {
+		return "", ErrNoField
+	}
+
+	if field.PkgPath != "" {
+		return "", ErrUnexportedField
+	}
+
+	return field.Tag.Get(tagKey), nil
+}
+
+// TagValues returns a slice of all the tag values of a given tag key from all
+// the exportable (public) struct fields.
+func TagValues(obj interface{}, tagKey string) (map[string]string, error) {
+	objValue, err := getReflectValue(obj)
+	if err != nil {
+		return nil, err
+	}
+
+	tagMap := map[string]string{}
+	objType := objValue.Type()
+	for i := 0; i < objValue.NumField(); i++ {
+		fieldType := objType.Field(i)
+		fieldValue := objValue.Field(i)
+
+		if fieldValue.CanInterface() {
+			tagMap[fieldType.Name] = fieldType.Tag.Get(tagKey)
+		}
+	}
+
+	return tagMap, nil
+}
+
 // getReflectValue gets a reflect-value of a given struct. If it is a pointer
 // to a struct, then it gives the reflect-value of the underlying structure.
 //
