@@ -13,7 +13,7 @@ go get github.com/ssrathi/go-attr
 ```
 
 ## Usage
-See full documentation at https://godoc.org/github.com/ssrathi/go-attr
+See full documentation at https://pkg.go.dev/github.com/ssrathi/go-attr
 ```go
   import (
     attr "github.com/ssrathi/go-attr"
