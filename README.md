@@ -28,9 +28,10 @@ See full documentation at https://pkg.go.dev/github.com/ssrathi/go-attr.
 
   type User struct {
     Username string `json:"username" db:"uname"`
-    Age      int `json:"age" meta:"important"`
+    Age      int    `json:"age" meta:"important"`
     password string
   }
+  
   user := User{"srathi", 30, "my_secret_123"}
   // NOTE:  Handle error if present in the examples below.
 ```
