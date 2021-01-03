@@ -22,6 +22,7 @@ go install
 ## Usage
 See full documentation at https://pkg.go.dev/github.com/ssrathi/go-attr.
 
+#### Examples
 ```go
   import attr "github.com/ssrathi/go-attr"
 
@@ -31,32 +32,50 @@ See full documentation at https://pkg.go.dev/github.com/ssrathi/go-attr.
     password string
   }
   user := User{"srathi", 30, "my_secret_123"}
-
   // NOTE:  Handle error if present in the examples below.
+```
+### HasField()
 
-  // HasField(): Check if a field name is part of a struct object.
+**Check if a field name is part of a struct object.**
+```go
   ok, err := attr.HasField(&user, "FirstName")
   fmt.Printf("FirstName found: %v\n", ok)
+```
+### SetField()
 
-  // SetField(): Set a new value to an existing field of a struct object.
+**Set a new value to an existing field of a struct object.**
+```go
   err = attr.SetField(&user, "Username", "new-username")
   fmt.Printf("New username: %s\n", user.Username)
+```
+### GetField()
 
-  // GetField(): Get the current value of a struct object.
+**Get the current value of a struct object.**
+```go
   val, err = attr.GetField(&user, "Username")
   fmt.Printf("Username: %s\n", user.Username)
+```
+### FieldValues()
 
-  // FieldValues(): Get the values of all the fields.
+**Get the values of all the struct fields.**
+```go
   fieldValues, err := attr.FieldValues(&user)
   for name, val := range fieldValues {
     fmt.Printf("%s: %v\n", name, val)
   }
+```
+### GetFieldTag()
 
-  // GetFieldTag(): Get the value of tag "meta" of field "Age".
+**Get the value of a specific tag of a specific field in a struct.**
+```go
+  // GetFieldTag(): 
   tagValue, err := attr.GetFieldTag(&user, "Age", "meta")
   fmt.Printf("'meta' tag value of 'Age': %s\n", tagValue)
+```
+### TagValues()
 
-  // TagValues(): Get the value of tag 'json' from all public fields of a struct.
+**Get the value of specific tag from all the public fields of a struct.**
+```go
   // Tag value is blank ("") if it is not part of a public field.
   tagVals, err := attr.TagValues(&user, "json")
   for fieldName, tagVal := range tagVals {
