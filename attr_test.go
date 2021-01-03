@@ -227,3 +227,59 @@ func ExampleTagValues() {
 	// json tag values: map[Age:age Username:username]
 	// db tag values: map[Age: Username:uname]
 }
+
+func TestGetFieldKind(t *testing.T) {
+	for _, a := range []struct {
+		attrName string
+		kindStr  string
+	}{
+		{"Username", "string"}, {"Age", "int"},
+	} {
+		want := a.kindStr
+		got, err := GetFieldKind(&user, a.attrName)
+		require.Nil(t, err)
+		require.Equal(t, want, got, "Field 'Kind' mismatch")
+	}
+
+	wantErr := ErrNoField
+	_, gotErr := GetField(user, "ABC")
+	require.Equal(t, wantErr, gotErr, "Able to get a non-existant field 'Kind'")
+}
+
+func ExampleGetFieldKind() {
+	testUser := User{Username: "srathi", password: "secret", Age: 30}
+
+	kind, err := GetFieldKind(testUser, "Age")
+	if err != nil {
+		// Handle error.
+	}
+	fmt.Printf("Kind of Age: %s\n", kind)
+
+	kind, err = GetFieldKind(testUser, "Username")
+	if err != nil {
+		// Handle error.
+	}
+	fmt.Printf("Kind of Username: %s\n", kind)
+	// Output:
+	// Kind of Age: int
+	// Kind of Username: string
+}
+
+func TestFieldKinds(t *testing.T) {
+	// Only public fields are returned.
+	want := map[string]string{"Username": "string", "Age": "int"}
+	got, err := FieldKinds(&user)
+	require.Nil(t, err)
+	require.Equal(t, want, got, "Struct field 'kind' map is not correct")
+}
+
+func ExampleFieldKinds() {
+	testUser := User{Username: "srathi", password: "secret", Age: 30}
+
+	kinds, err := FieldKinds(&testUser)
+	if err != nil {
+		// Handle error.
+	}
+	fmt.Printf("Field kinds: %v", kinds)
+	// Output: Field kinds: map[Age:int Username:string]
+}

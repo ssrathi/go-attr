@@ -203,6 +203,48 @@ func TagValues(obj interface{}, tagKey string) (map[string]string, error) {
 	return tagMap, nil
 }
 
+// GetFieldKind returns the "kind" of a specified public struct field. "Kind" is
+// the in-built type of a variable, such as Uint64, Slice, Struct, Ptr, etc.
+func GetFieldKind(obj interface{}, fieldName string) (string, error) {
+	objValue, err := getReflectValue(obj)
+	if err != nil {
+		return "", err
+	}
+
+	fieldValue := objValue.FieldByName(fieldName)
+	if !fieldValue.IsValid() {
+		return "", ErrNoField
+	}
+
+	if !fieldValue.CanInterface() {
+		return "", ErrUnexportedField
+	}
+
+	return fieldValue.Kind().String(), nil
+}
+
+// FieldKinds returns the 'kind' of all the public fields of a struct. "Kind" is
+// the in-built type of a variable, such as Uint64, Slice, Struct, Ptr, etc.
+func FieldKinds(obj interface{}) (map[string]string, error) {
+	objValue, err := getReflectValue(obj)
+	if err != nil {
+		return nil, err
+	}
+
+	kindMap := map[string]string{}
+	objType := objValue.Type()
+	for i := 0; i < objValue.NumField(); i++ {
+		fieldType := objType.Field(i)
+		fieldValue := objValue.Field(i)
+
+		if fieldValue.CanInterface() {
+			kindMap[fieldType.Name] = fieldValue.Kind().String()
+		}
+	}
+
+	return kindMap, nil
+}
+
 // getReflectValue gets a reflect-value of a given struct. If it is a pointer
 // to a struct, then it gives the reflect-value of the underlying structure.
 //

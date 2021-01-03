@@ -83,6 +83,24 @@ See full documentation at https://pkg.go.dev/github.com/ssrathi/go-attr.
     fmt.Printf("%s: %v\n", fieldName, tagVal)
   }
 ```
+### GetFieldKind()
+
+**Get the "kind" (type) of a specified struct field.**
+```go
+  // For example, "var Age int" is of kind 'int'.
+  kind, err := attr.GetFieldKind(&user, "Age")
+  fmt.Printf("Kind of 'Age': %s\n", kind)
+```
+### FieldKinds()
+
+**Get the "kind" (type) of all the struct fields.**
+```go
+  // For example, "var Age int" is of kind 'int'.
+  kinds, err := attr.FieldKinds(&user)
+  for name, kind := range kinds {
+    fmt.Printf("%s: %s\n", name, kind)
+  }
+```
 
 ## Contributing
 
