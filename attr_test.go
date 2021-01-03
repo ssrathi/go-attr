@@ -253,7 +253,7 @@ func TestGetKind(t *testing.T) {
 
 	wantErr := ErrNoField
 	_, gotErr := GetKind(user, "ABC")
-	require.Equal(t, wantErr, gotErr, "Able to get a non-existant field 'Kind'")
+	require.Equal(t, wantErr, gotErr, "Able to get a non-existent field 'Kind'")
 }
 
 func ExampleGetKind() {
