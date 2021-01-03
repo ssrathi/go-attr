@@ -13,6 +13,11 @@
 // and results in a panic if an incorrect input is provided. This package provides
 // high level abstractions on such tricky APIs in a user friendly manner.
 //
+// Example
+//
+// A quick example to see it in action.
+// Full documentation is at https://pkg.go.dev/github.com/ssrathi/go-attr.
+//
 // 	import attr "github.com/ssrathi/go-attr"
 //
 // 	user := User{
@@ -20,17 +25,8 @@
 // 		FirstName: "Shyamsunder",
 // 	}
 //
-// 	ok, err := attr.HasField(&user, "FirstName")
-// 	fmt.Printf("FirstName found: %v\n", ok)
-//
-// 	err = attr.SetField(&user, "Username", "srathi-alt")
-// 	fmt.Printf("New username: %s\n", user.Username)
-//
-// 	val, err = attr.GetField(&user, "Username")
-// 	fmt.Printf("Username: %s\n", user.Username)
-//
-// 	fields := attr.FieldNames(&user)
-// 	fmt.Printf("All public fields of user: %v\n", fields)
+// 	err = attr.SetValue(&user, "Username", "srathi-alt")
+// 	fmt.Printf("New username: %s\n", user.Username) // prints "srathi-alt"
 package attr
 
 import (
@@ -47,12 +43,12 @@ var (
 	ErrMismatchValue   = errors.New("Specified value to set is of a different type")
 )
 
-// GetField returns the value of a given field of a structure given by 'obj'.
+// GetValue returns the value of a given field of a structure given by 'obj'.
 // 'obj' can be passed by value or by pointer.
 // Only exported (public) field values can be found (else ErrUnexportedField is raised).
 //
 // If the field is not found, then an error is returned.
-func GetField(obj interface{}, fieldName string) (interface{}, error) {
+func GetValue(obj interface{}, fieldName string) (interface{}, error) {
 	objValue, err := getReflectValue(obj)
 	if err != nil {
 		return nil, err
@@ -70,9 +66,9 @@ func GetField(obj interface{}, fieldName string) (interface{}, error) {
 	return fieldValue.Interface(), nil
 }
 
-// HasField returns a boolean indicating if the given field name is found in
+// Has returns a boolean indicating if the given field name is found in
 // the given struct obj.
-func HasField(obj interface{}, fieldName string) (bool, error) {
+func Has(obj interface{}, fieldName string) (bool, error) {
 	objValue, err := getReflectValue(obj)
 	if err != nil {
 		return false, err
@@ -83,12 +79,12 @@ func HasField(obj interface{}, fieldName string) (bool, error) {
 	return found, nil
 }
 
-// SetField sets the given value to the fieldName field in the given struct 'obj'.
+// SetValue sets the given value to the fieldName field in the given struct 'obj'.
 // Only exported (public) fields can be set using this API.
 //
 // NOTE: 'obj' struct must be passed by pointer for this API to work. Passing by
 // value results in ErrPassedByValue.
-func SetField(obj interface{}, fieldName string, newValue interface{}) error {
+func SetValue(obj interface{}, fieldName string, newValue interface{}) error {
 	objValue := reflect.ValueOf(obj)
 	if objValue.Kind() != reflect.Ptr {
 		return ErrNotPtr
@@ -116,9 +112,9 @@ func SetField(obj interface{}, fieldName string, newValue interface{}) error {
 	return nil
 }
 
-// FieldNames returns a slice of all field names of a given struct.
+// Names returns a slice of all field names of a given struct.
 // Only the exportable (public) field names are returned.
-func FieldNames(obj interface{}) ([]string, error) {
+func Names(obj interface{}) ([]string, error) {
 	objValue, err := getReflectValue(obj)
 	if err != nil {
 		return nil, err
@@ -138,9 +134,9 @@ func FieldNames(obj interface{}) ([]string, error) {
 	return fieldNames, nil
 }
 
-// FieldValues returns a map of all field names with the value of each field.
+// Values returns a map of all field names with the value of each field.
 // Only the exportable (public) field name-value pairs are returned.
-func FieldValues(obj interface{}) (map[string]interface{}, error) {
+func Values(obj interface{}) (map[string]interface{}, error) {
 	objValue, err := getReflectValue(obj)
 	if err != nil {
 		return nil, err
@@ -160,9 +156,9 @@ func FieldValues(obj interface{}) (map[string]interface{}, error) {
 	return valueMap, nil
 }
 
-// GetFieldTag returns the value of a specified tag on a specified struct field.
+// GetTag returns the value of a specified tag on a specified struct field.
 // Specified field must be an exportable (public) filed of the struct.
-func GetFieldTag(obj interface{}, fieldName, tagKey string) (string, error) {
+func GetTag(obj interface{}, fieldName, tagKey string) (string, error) {
 	objValue, err := getReflectValue(obj)
 	if err != nil {
 		return "", err
@@ -181,9 +177,9 @@ func GetFieldTag(obj interface{}, fieldName, tagKey string) (string, error) {
 	return field.Tag.Get(tagKey), nil
 }
 
-// TagValues returns a slice of all the tag values of a given tag key from all
-// the exportable (public) struct fields.
-func TagValues(obj interface{}, tagKey string) (map[string]string, error) {
+// Tags returns a map of all the tag values of a given tag key from all
+// the exported (public) struct fields.
+func Tags(obj interface{}, tagKey string) (map[string]string, error) {
 	objValue, err := getReflectValue(obj)
 	if err != nil {
 		return nil, err
@@ -203,9 +199,9 @@ func TagValues(obj interface{}, tagKey string) (map[string]string, error) {
 	return tagMap, nil
 }
 
-// GetFieldKind returns the "kind" of a specified public struct field. "Kind" is
+// GetKind returns the "kind" of a specified public struct field. "Kind" is
 // the in-built type of a variable, such as Uint64, Slice, Struct, Ptr, etc.
-func GetFieldKind(obj interface{}, fieldName string) (string, error) {
+func GetKind(obj interface{}, fieldName string) (string, error) {
 	objValue, err := getReflectValue(obj)
 	if err != nil {
 		return "", err
@@ -223,9 +219,9 @@ func GetFieldKind(obj interface{}, fieldName string) (string, error) {
 	return fieldValue.Kind().String(), nil
 }
 
-// FieldKinds returns the 'kind' of all the public fields of a struct. "Kind" is
+// Kinds returns the 'kind' of all the public fields of a struct. "Kind" is
 // the in-built type of a variable, such as Uint64, Slice, Struct, Ptr, etc.
-func FieldKinds(obj interface{}) (map[string]string, error) {
+func Kinds(obj interface{}) (map[string]string, error) {
 	objValue, err := getReflectValue(obj)
 	if err != nil {
 		return nil, err

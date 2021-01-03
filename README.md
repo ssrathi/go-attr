@@ -22,7 +22,7 @@ go install
 ## Usage
 See full documentation at https://pkg.go.dev/github.com/ssrathi/go-attr.
 
-#### Examples
+### Examples
 ```go
   import attr "github.com/ssrathi/go-attr"
 
@@ -34,69 +34,77 @@ See full documentation at https://pkg.go.dev/github.com/ssrathi/go-attr.
   
   user := User{"srathi", 30, "my_secret_123"}
   // NOTE:  Handle error if present in the examples below.
+  // Also, all the APIs work on the exported (public) fields of a struct.
 ```
-### HasField()
-
-**Check if a field name is part of a struct object.**
-```go
-  ok, err := attr.HasField(&user, "FirstName")
-  fmt.Printf("FirstName found: %v\n", ok)
-```
-### SetField()
+### SetValue()
 
 **Set a new value to an existing field of a struct object.**
 ```go
   // Struct must be passed by pointer to set its field.
-  err = attr.SetField(&user, "Username", "new-username")
+  err = attr.SetValue(&user, "Username", "new-username")
   fmt.Printf("New username: %s\n", user.Username)
 ```
-### GetField()
+### GetValue()
 
 **Get the current value of a struct object.**
 ```go
-  val, err = attr.GetField(&user, "Username")
+  val, err = attr.GetValue(&user, "Username")
   fmt.Printf("Username: %s\n", user.Username)
 ```
-### FieldValues()
+### Has()
+
+**Check if a field name is part of a struct object.**
+```go
+  ok, err := attr.Has(&user, "FirstName")
+  fmt.Printf("FirstName found: %v\n", ok)
+```
+### Names()
+
+**Get the names of all the struct fields.**
+```go
+  fieldNames, err := attr.Names(&user)
+  fmt.Printf("field names: %v\n", fieldNames)
+```
+### Values()
 
 **Get the values of all the struct fields.**
 ```go
-  fieldValues, err := attr.FieldValues(&user)
+  fieldValues, err := attr.Values(&user)
   for name, val := range fieldValues {
     fmt.Printf("%s: %v\n", name, val)
   }
 ```
-### GetFieldTag()
+### GetTag()
 
 **Get the value of a specific tag of a specific field in a struct.**
 ```go
-  tagValue, err := attr.GetFieldTag(&user, "Age", "meta")
+  tagValue, err := attr.GetTag(&user, "Age", "meta")
   fmt.Printf("'meta' tag value of 'Age': %s\n", tagValue)
 ```
-### TagValues()
+### Tags()
 
 **Get the value of specific tag from all the public fields of a struct.**
 ```go
   // Tag value is blank ("") if it is not part of a public field.
-  tagVals, err := attr.TagValues(&user, "json")
+  tagVals, err := attr.Tags(&user, "json")
   for fieldName, tagVal := range tagVals {
     fmt.Printf("%s: %v\n", fieldName, tagVal)
   }
 ```
-### GetFieldKind()
+### GetKind()
 
 **Get the "kind" (type) of a specified struct field.**
 ```go
   // For example, "var Age int" is of kind 'int'.
-  kind, err := attr.GetFieldKind(&user, "Age")
+  kind, err := attr.GetKind(&user, "Age")
   fmt.Printf("Kind of 'Age': %s\n", kind)
 ```
-### FieldKinds()
+### Kinds()
 
 **Get the "kind" (type) of all the struct fields.**
 ```go
   // For example, "var Age int" is of kind 'int'.
-  kinds, err := attr.FieldKinds(&user)
+  kinds, err := attr.Kinds(&user)
   for name, kind := range kinds {
     fmt.Printf("%s: %s\n", name, kind)
   }
