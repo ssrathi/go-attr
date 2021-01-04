@@ -1,5 +1,6 @@
 [![Builds](https://github.com/ssrathi/go-attr/workflows/Build/badge.svg?branch=master)](https://github.com/ssrathi/go-attr/actions?query=branch%3Amaster+workflow%3ABuild)
 [![Go Report Card](https://goreportcard.com/badge/github.com/ssrathi/go-attr)](https://goreportcard.com/report/github.com/ssrathi/go-attr)
+[![codecov.io](https://codecov.io/github/ssrathi/go-attr/coverage.svg?branch=master)](https://codecov.io/github/ssrathi/go-attr?branch=master)
 [![Go Reference](https://pkg.go.dev/badge/github.com/ssrathi/go-attr.svg)](https://pkg.go.dev/github.com/ssrathi/go-attr)
 
 # go-attr
