@@ -33,7 +33,9 @@ jobs:
       run: go build -v .
 
     - name: Test
-      run: go test -v ./...
+      run: |
+        go test -v -coverprofile cover.out ./...
+        bash <(curl -s https://codecov.io/bash)
 
     - name: Lint
       run: |
